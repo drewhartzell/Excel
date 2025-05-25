@@ -77,3 +77,6 @@ Sub Clear()
 
 
 End Sub
+
+Excel Formula for eagle-view distance:
+=ACOS(COS(RADIANS(90-I2))*COS(RADIANS(90-K2))+SIN(RADIANS(90-I2))*SIN(RADIANS(90-K2))*COS(RADIANS(J2-L2)))*3958
