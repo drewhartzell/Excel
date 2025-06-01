@@ -1,0 +1,8 @@
+# Commonly used Excel Functions #
+
+TEXTJOIN()
+
+# Indexing and Lookups #
+
+# Random String Values (from table) 
+=INDEX(B5:B12,RANDBETWEEN(1,8))
