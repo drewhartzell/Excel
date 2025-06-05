@@ -1,0 +1,34 @@
+Sub CopyandPasteRows()
+'
+' CopyandPasteRows Macro
+'
+Application.Calculation = xlCalculationManual
+'
+    Rows("2:2").Select
+    Range(Selection, Selection.End(xlDown)).Select
+    Selection.Copy
+    Workbooks.Open Filename:= _
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" _
+        , UpdateLinks:=3
+    Sheets("DATA").Select
+    ActiveWindow.ScrollColumn = 33
+    ActiveWindow.ScrollColumn = 32
+    ActiveWindow.ScrollColumn = 30
+    ActiveWindow.ScrollColumn = 27
+    ActiveWindow.ScrollColumn = 21
+    ActiveWindow.ScrollColumn = 15
+    ActiveWindow.ScrollColumn = 5
+    ActiveWindow.ScrollColumn = 1
+    Range("A2").Select
+    Selection.PasteSpecial Paste:=xlPasteAll, Operation:=xlNone, SkipBlanks:= _
+        True, Transpose:=False
+    Application.CutCopyMode = False
+    ChDir "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    Application.DisplayAlerts = False
+    ActiveWorkbook.SaveAs Filename:= _
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx" _
+        , FileFormat:=xlOpenXMLWorkbook, CreateBackup:=False
+        Application.DisplayAlerts = True
+        
+Application.Calculation = xlCalculationAutomatic
+End Sub
