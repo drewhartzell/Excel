@@ -6,3 +6,6 @@ TEXTJOIN()
 
 # Random String Values (from table) 
 =INDEX(B5:B12,RANDBETWEEN(1,8))
+
+# Date -> Day of the Week 
+=TEXT(A1, "dddd")
