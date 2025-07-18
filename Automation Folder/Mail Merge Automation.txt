@@ -1,0 +1,50 @@
+Option Explicit
+        Const FOLDER_SAVED As String = "xxxxxxxx”
+        Const SOURCE_FILE_PATH As String = "xxxxxxx"
+    Sub AutoOpen()
+    Dim MainDoc As Document, TargetDoc As Document
+    Dim recordNumber As Long, totalRecord As Long
+    Dim i As Integer
+    Dim StartRow As Integer, EndRow As Integer
+        
+        
+    StartRow = InputBox("Enter the starting record for creating Fact Sheets.")
+    EndRow = InputBox("Enter the last record for creating Fact Sheets.")
+    
+    
+    Set MainDoc = ThisDocument
+    
+    With MainDoc.MailMerge
+        .OpenDataSource Name:=SOURCE_FILE_PATH, SQLStatement:="SELECT*FROM[Master Copied Area$]"
+    
+           totalRecord = .DataSource.RecordCount
+            
+        For recordNumber = StartRow To (EndRow - 1)
+            
+      
+            With .DataSource
+                .ActiveRecord = recordNumber
+                .FirstRecord = recordNumber
+                .LastRecord = recordNumber
+            End With
+            
+            .Destination = wdSendToNewDocument
+             
+            .Execute False
+      
+        
+            Set TargetDoc = ActiveDocument
+                TargetDoc.SaveAs2 FOLDER_SAVED + .DataSource.DataFields("Event_Date_Text") + " - " + .DataSource.DataFields("Company_Name") + _
+                " " + .DataSource.DataFields("Screening_Location") + " - " + .DataSource.DataFields("City") + ", " + .DataSource.DataFields("State") + " Fact Sheet" + ".docx", wdFormatDocumentDefault
+                
+            
+                TargetDoc.Close False
+            Set TargetDoc = Nothing
+        
+        Next recordNumber
+        
+    End With
+    
+    Set TargetDoc = Nothing
+    
+End Sub
