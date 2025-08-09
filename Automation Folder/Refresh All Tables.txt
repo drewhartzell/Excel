@@ -1,0 +1,78 @@
+Public NextRefreshTime As Date
+
+Sub StartTimedRefresh()
+    Dim intervalMinutes As Double
+    
+    On Error GoTo InvalidInterval
+    intervalMinutes = Range("RefreshInterval").Value
+    If intervalMinutes <= 0 Then
+        MsgBox "RefreshInterval must be greater than zero.", vbExclamation
+        Exit Sub
+    End If
+    
+    Call TimedRefresh(intervalMinutes)
+    Exit Sub
+    
+InvalidInterval:
+    MsgBox "Please enter a valid number in the RefreshInterval cell.", vbExclamation
+End Sub
+
+Sub TimedRefresh(intervalMinutes As Double)
+    Dim conn As WorkbookConnection
+    Dim logSheet As Worksheet
+    Dim nextRow As Long
+    Dim logText As String
+    
+    ' Refresh all ODC connections
+    For Each conn In ThisWorkbook.Connections
+        On Error Resume Next
+        conn.Refresh
+        On Error GoTo 0
+    Next conn
+    
+    ' --- Log refresh time ---
+    On Error Resume Next
+    Set logSheet = ThisWorkbook.Worksheets("RefreshLog")
+    On Error GoTo 0
+    
+    ' If sheet doesn't exist, create it and add header
+    If logSheet Is Nothing Then
+        Set logSheet = ThisWorkbook.Worksheets.Add(After:=ThisWorkbook.Worksheets(ThisWorkbook.Worksheets.Count))
+        logSheet.Name = "RefreshLog"
+        logSheet.Range("A1").Value = "Refresh Date/Time"
+    End If
+    
+    ' Find next empty row
+    nextRow = logSheet.Cells(logSheet.Rows.Count, "A").End(xlUp).Row + 1
+    logText = Format(Now, "yyyy-mm-dd HH:nn:ss")
+    
+    logSheet.Cells(nextRow, "A").Value = logText
+    
+    ' Optional: Auto-fit column width
+    logSheet.Columns("A").AutoFit
+
+    ' Schedule next refresh
+    NextRefreshTime = Now + TimeSerial(0, intervalMinutes, 0)
+    Application.OnTime NextRefreshTime, "TimedRefreshWrapper"
+End Sub
+
+' Wrapper to call TimedRefresh with interval read fresh from the cell each time
+Sub TimedRefreshWrapper()
+    Dim intervalMinutes As Double
+    
+    On Error GoTo InvalidInterval
+    intervalMinutes = Range("RefreshInterval").Value
+    If intervalMinutes <= 0 Then Exit Sub ' stop if interval is invalid
+    
+    Call TimedRefresh(intervalMinutes)
+    Exit Sub
+    
+InvalidInterval:
+    ' Ignore errors silently here to avoid infinite loops
+End Sub
+
+Sub StopTimedRefresh()
+    On Error Resume Next
+    Application.OnTime NextRefreshTime, "TimedRefreshWrapper", , False
+    On Error GoTo 0
+End Sub
